@@ -223,8 +223,8 @@ ${
 
 <!-- Consultation Summary Report Modal -->
 {#if showSummaryModal}
-	<div class="modal-backdrop" onclick={() => (showSummaryModal = false)}>
-		<div class="modal-card report-modal" onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (showSummaryModal = false)}>
+		<div class="modal-card report-modal" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3>📄 전문가 상담용 요약 리포트</h3>
 				<button type="button" class="btn-close" onclick={() => (showSummaryModal = false)}>&times;</button>

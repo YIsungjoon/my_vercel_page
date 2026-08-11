@@ -28,3 +28,6 @@ tmp/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local PDCA records and working documents
+/docs/

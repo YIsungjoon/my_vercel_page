@@ -1,20 +1,28 @@
+import { browser } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
-import { env as privateEnv } from '$env/dynamic/private';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = publicEnv.PUBLIC_SUPABASE_URL || privateEnv.SUPABASE_URL || '';
-const supabaseAnonKey = publicEnv.PUBLIC_SUPABASE_ANON_KEY || privateEnv.SUPABASE_ANON_KEY || privateEnv.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl = publicEnv.PUBLIC_SUPABASE_URL || '';
+const supabasePublishableKey =
+  publicEnv.PUBLIC_SUPABASE_PUBLISHABLE_KEY || publicEnv.PUBLIC_SUPABASE_ANON_KEY || '';
 
 export let supabase: SupabaseClient | null = null;
 
-if (supabaseUrl && supabaseAnonKey) {
-	try {
-		supabase = createClient(supabaseUrl, supabaseAnonKey);
-	} catch (e) {
-		console.warn('Failed to initialize Supabase client:', e);
-	}
+export function getSupabaseBrowserClient(): SupabaseClient | null {
+  if (!browser || supabase || !supabaseUrl || !supabasePublishableKey) {
+    return supabase;
+  }
+
+  try {
+    supabase = createBrowserClient(supabaseUrl, supabasePublishableKey);
+  } catch (error) {
+    console.warn('Failed to initialize public Supabase client:', error);
+  }
+
+  return supabase;
 }
 
 export function isSupabaseConnected(): boolean {
-	return supabase !== null;
+  return getSupabaseBrowserClient() !== null;
 }

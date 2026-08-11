@@ -1,9 +1,9 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { supabase } from '$lib/supabaseClient';
 
-export const POST: RequestHandler = async ({ request }) => {
+
+export const POST: RequestHandler = async ({ request, locals }) => {
 	const startTime = Date.now();
 	try {
 		const body = await request.json();
@@ -116,9 +116,9 @@ Vercel 환경변수에 <code>NVIDIA_API_KEY</code>가 등록되어 있습니다.
 		const totalTokens = usage.total_tokens ?? null;
 
 		// Persist Chat Log to Supabase DB
-		if (supabase) {
+		if (locals.supabase) {
 			try {
-				const { error } = await supabase
+				const { error } = await locals.supabase
 					.from('chat_logs')
 					.insert([
 						{

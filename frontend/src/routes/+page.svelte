@@ -8,6 +8,14 @@
 	let { data }: { data: PageData } = $props();
 
 	let realTimeWeather = $state<WeatherInfo | null>(null);
+	let serverHydrated = $state(false);
+
+	$effect(() => {
+		if (!serverHydrated && data.farms?.length) {
+			farmStore.hydrateFromServer(data.farms, data.tasks ?? []);
+			serverHydrated = true;
+		}
+	});
 
 	$effect(() => {
 		const region = farmStore.currentFarm.region;
@@ -40,22 +48,51 @@
 		61: '약한 비', 63: '비', 65: '강한 비', 80: '약한 소나기', 81: '소나기', 82: '강한 소나기', 95: '뇌우'
 	};
 
-	function handleRegisterFarm(e: SubmitEvent) {
+	async function handleRegisterFarm(e: SubmitEvent) {
 		e.preventDefault();
 		if (!newName || !newCrop || !newVariety) {
-			alert('농장명, 작물, 품종을 입력해 주세요.');
+			alert('Farm name, crop, and variety are required.');
 			return;
 		}
 
-		farmStore.addFarm({
-			name: newName,
-			region: newRegion,
-			crop: newCrop,
-			variety: newVariety,
-			planted_at: newPlantedAt,
-			growth_stage: newGrowthStage,
-			notes: newNotes
+		const response = await fetch('/api/farms', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: newName,
+				region: newRegion,
+				crop: newCrop,
+				variety: newVariety,
+				planted_at: newPlantedAt,
+				growth_stage: newGrowthStage,
+				notes: newNotes
+			})
 		});
+
+		if (response.status === 401) {
+			window.location.assign('/auth?next=/');
+			return;
+		}
+
+		const result = await response.json().catch(() => ({}));
+		if (!response.ok) {
+			alert(result.error || 'Farm registration failed.');
+			return;
+		}
+
+		if (result.farm && result.cycle) {
+			farmStore.addPersistedFarm({
+				id: result.farm.id,
+				name: result.farm.name,
+				region: result.farm.region,
+				crop: result.cycle.crop,
+				variety: result.cycle.variety,
+				planted_at: result.cycle.planted_at,
+				growth_stage: result.cycle.growth_stage as GrowthStage,
+				notes: result.cycle.notes ?? undefined,
+				created_at: result.farm.created_at
+			});
+		}
 
 		// Reset form
 		newName = '';
@@ -251,8 +288,8 @@
 
 <!-- Farm Registration Modal -->
 {#if showRegModal}
-	<div class="modal-backdrop" onclick={() => (showRegModal = false)}>
-		<div class="modal-card" onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (showRegModal = false)}>
+		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3>🌱 신규 농장 및 작물 등록</h3>
 				<button type="button" class="btn-close" onclick={() => (showRegModal = false)}>&times;</button>

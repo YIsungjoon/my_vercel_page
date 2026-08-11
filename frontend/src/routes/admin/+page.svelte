@@ -187,8 +187,8 @@
 
 <!-- Urgent Task Assignment Modal -->
 {#if selectedSummaryForAction}
-	<div class="modal-backdrop" onclick={() => (selectedSummaryForAction = null)}>
-		<div class="modal-card" onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (selectedSummaryForAction = null)}>
+		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3>⚡ 관리자 긴급 작업 할당</h3>
 				<button type="button" class="btn-close" onclick={() => (selectedSummaryForAction = null)}>&times;</button>

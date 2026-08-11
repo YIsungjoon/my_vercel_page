@@ -134,8 +134,7 @@ Deno.serve(async (request) => {
 			weather_code: requireNumber(current.weather_code, 'weather_code'),
 			wind_speed_kph: requireNumber(current.wind_speed_10m, 'wind_speed_10m'),
 			wind_direction_deg: requireNumber(current.wind_direction_10m, 'wind_direction_10m'),
-			source: 'open-meteo',
-			source_payload: weather
+			source: 'open-meteo'
 		};
 		const { data, error } = await supabase
 			.from('weather_observations')

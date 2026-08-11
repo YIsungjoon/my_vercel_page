@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { supabase } from '$lib/supabaseClient';
+import { getLatestFarmWeather } from '$lib/server/weather';
 
 // Map Korean regions to precise latitude and longitude
 const REGION_COORDINATES: Record<string, { lat: number; lon: number; name: string }> = {
@@ -9,9 +9,9 @@ const REGION_COORDINATES: Record<string, { lat: number; lon: number; name: strin
 	'부여': { lat: 36.2756, lon: 126.9097, name: '충청남도 부여군' }
 };
 
-export const GET: RequestHandler = async ({ url, setHeaders }) => {
+export const GET: RequestHandler = async ({ url, setHeaders, locals }) => {
 	const regionParam = url.searchParams.get('region') || '김제';
-	const farmId = url.searchParams.get('farm_id') || null;
+
 	
 	// Set 1-hour cache header
 	setHeaders({
@@ -27,11 +27,17 @@ export const GET: RequestHandler = async ({ url, setHeaders }) => {
 		}
 	}
 
-	let weatherRecord;
+	const storedWeather = await getLatestFarmWeather(locals.supabase, regionParam);
+
+if (storedWeather) {
+  return json({ success: true, weather: storedWeather, source: 'database' });
+}
+
+let weatherRecord;
 
 	try {
 		// Call real-time global weather API (Open-Meteo API for real-time Korea observations)
-		const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${targetGeo.lat}&longitude=${targetGeo.lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code&hourly=precipitation_probability&timezone=Asia%2FTokyo`;
+		const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${targetGeo.lat}&longitude=${targetGeo.lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code&hourly=precipitation_probability&timezone=Asia%2FSeoul`;
 
 		const res = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
 		if (!res.ok) throw new Error(`Weather API returned HTTP ${res.status}`);
@@ -99,29 +105,6 @@ export const GET: RequestHandler = async ({ url, setHeaders }) => {
 			recommendation: '정상 환기 및 관수 스케줄을 유지하세요.',
 			updatedAt: new Date().toISOString()
 		};
-	}
-
-	// Persist to Supabase DB if client is connected
-	if (supabase) {
-		try {
-			const { error } = await supabase
-				.from('weather_observations')
-				.insert({
-					farm_id: farmId,
-					region: weatherRecord.region,
-					temperature: weatherRecord.temperature,
-					humidity: weatherRecord.humidity,
-					precipitation_probability: weatherRecord.precipitationProbability,
-					sky_condition: weatherRecord.skyCondition,
-					warning_type: weatherRecord.warningType,
-					warning_message: weatherRecord.warningMessage,
-					recommendation: weatherRecord.recommendation,
-					observed_at: new Date().toISOString()
-				});
-			if (error) console.warn('Supabase weather_observations insert error:', error.message);
-		} catch (e: any) {
-			console.warn('Supabase insert exception:', e?.message || e);
-		}
 	}
 
 	return json({

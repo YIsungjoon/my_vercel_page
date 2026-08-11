@@ -234,6 +234,88 @@ class FarmStoreState {
 	);
 
 	// Actions
+	hydrateFromServer(farms: unknown[], tasks: unknown[]) {
+		const text = (value: unknown, fallback = '') =>
+			typeof value === 'string' && value.trim() ? value : fallback;
+
+		const mappedFarms = farms
+			.map((raw) => {
+				if (!raw || typeof raw !== 'object') return null;
+				const farm = raw as Record<string, unknown>;
+				const cycles = Array.isArray(farm.cultivation_cycles)
+					? (farm.cultivation_cycles as Record<string, unknown>[])
+					: [];
+				const cycle =
+					cycles.find((item) => text(item.status) === 'active') ??
+					cycles[0] ??
+					({} as Record<string, unknown>);
+
+				const id = text(farm.id);
+				if (!id) return null;
+
+				return {
+					id,
+					name: text(farm.name, 'Unnamed farm'),
+					region: text(farm.region, 'Unknown region'),
+					cultivation_cycle_id: text(cycle.id) || undefined,
+					crop: text(cycle.crop, 'Unknown crop'),
+					variety: text(cycle.variety, 'Unknown variety'),
+					planted_at: text(cycle.planted_at, new Date().toISOString().slice(0, 10)),
+					growth_stage: text(cycle.growth_stage) as GrowthStage,
+					notes: text(cycle.notes) || undefined,
+					created_at: text(farm.created_at) || undefined
+				} satisfies Farm;
+			})
+			.filter(Boolean) as Farm[];
+
+		const mappedTasks = tasks
+			.map((raw) => {
+				if (!raw || typeof raw !== 'object') return null;
+				const task = raw as Record<string, unknown>;
+				const id = text(task.id);
+				const farmId = text(task.farm_id);
+				if (!id || !farmId) return null;
+
+				return {
+					id,
+					farm_id: farmId,
+					cultivation_cycle_id: text(task.cultivation_cycle_id) || undefined,
+					operation_type_code:
+						(text(task.operation_type_code) as Task['operation_type_code']) || undefined,
+					work_area_ids: Array.isArray(task.work_area_ids)
+						? task.work_area_ids.filter((value): value is string => typeof value === 'string')
+						: Array.isArray(task.task_work_areas)
+							? (task.task_work_areas as Record<string, unknown>[])
+									.map((link) => text(link.work_area_id))
+									.filter(Boolean)
+							: [],
+					title: text(task.title, 'Untitled task'),
+					description: text(task.description) || undefined,
+					scheduled_date: text(task.scheduled_date),
+					category: text(task.category) as TaskCategory,
+					status: text(task.status, 'pending') as TaskStatus,
+					priority: text(task.priority, 'medium') as TaskPriority,
+					is_followup: task.is_followup === true,
+					parent_task_id: text(task.parent_task_id) || undefined,
+					created_at: text(task.created_at) || undefined
+				} satisfies Task;
+			})
+			.filter(Boolean) as Task[];
+
+		if (mappedFarms.length > 0) {
+			this.farms = mappedFarms;
+			if (!mappedFarms.some((farm) => farm.id === this.selectedFarmId)) {
+				this.selectedFarmId = mappedFarms[0].id;
+			}
+		}
+
+		if (mappedTasks.length > 0 || farms.length > 0) {
+			this.tasks = mappedTasks;
+		}
+
+		this.logs = [];
+		this.consultations = [];
+	}
 	selectFarm(farmId: string) {
 		this.selectedFarmId = farmId;
 	}
@@ -249,10 +331,19 @@ class FarmStoreState {
 		return newFarm;
 	}
 
+	addPersistedFarm(farm: Farm) {
+		this.farms = [farm, ...this.farms.filter((existing) => existing.id !== farm.id)];
+		this.selectedFarmId = farm.id;
+		return farm;
+	}
 	updateFarm(id: string, updates: Partial<Farm>) {
 		this.farms = this.farms.map((f) => (f.id === id ? { ...f, ...updates } : f));
 	}
 
+	addPersistedTask(task: Task) {
+		this.tasks = [task, ...this.tasks.filter((existing) => existing.id !== task.id)];
+		return task;
+	}
 	addTask(taskData: Omit<Task, 'id' | 'created_at' | 'status'> & { status?: TaskStatus }) {
 		const newTask: Task = {
 			...taskData,
@@ -264,6 +355,10 @@ class FarmStoreState {
 		return newTask;
 	}
 
+	addPersistedLog(log: TaskLog) {
+		this.logs = [log, ...this.logs.filter((existing) => existing.id !== log.id)];
+		return log;
+	}
 	logTaskAction(params: {
 		task_id: string;
 		action: 'completed' | 'skipped' | 'issue';
@@ -301,6 +396,9 @@ class FarmStoreState {
 			const followupTask: Task = {
 				id: `task-followup-${Date.now()}`,
 				farm_id: task.farm_id,
+				cultivation_cycle_id: task.cultivation_cycle_id,
+				operation_type_code: 'follow_up',
+				work_area_ids: task.work_area_ids,
 				title: followupTitle,
 				description: `원인/기록: ${params.note}`,
 				scheduled_date: followupDate,

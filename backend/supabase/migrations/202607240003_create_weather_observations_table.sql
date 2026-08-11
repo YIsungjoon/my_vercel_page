@@ -1,4 +1,7 @@
--- Weather Observations & Microclimate History Table
+-- Compatibility migration for the legacy summary weather schema.
+-- The canonical detailed weather_observations table may already exist from
+-- 202607220001_create_demo_farm_weather.sql.
+
 CREATE TABLE IF NOT EXISTS public.weather_observations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     farm_id UUID REFERENCES public.farms(id) ON DELETE SET NULL,
@@ -14,12 +17,27 @@ CREATE TABLE IF NOT EXISTS public.weather_observations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Performance Indexes for Weather Analytics
 CREATE INDEX IF NOT EXISTS idx_weather_obs_farm_id ON public.weather_observations(farm_id);
-CREATE INDEX IF NOT EXISTS idx_weather_obs_region ON public.weather_observations(region);
 CREATE INDEX IF NOT EXISTS idx_weather_obs_observed_at ON public.weather_observations(observed_at DESC);
 
--- RLS Policy for Public Access
 ALTER TABLE public.weather_observations ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public select for weather_observations" ON public.weather_observations FOR SELECT USING (true);
-CREATE POLICY "Allow public insert for weather_observations" ON public.weather_observations FOR INSERT WITH CHECK (true);
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'weather_observations'
+          AND column_name = 'region'
+    ) THEN
+        EXECUTE 'CREATE INDEX IF NOT EXISTS idx_weather_obs_region ON public.weather_observations(region)';
+
+        EXECUTE 'DROP POLICY IF EXISTS "Allow public select for weather_observations" ON public.weather_observations';
+        EXECUTE 'CREATE POLICY "Allow public select for weather_observations" ON public.weather_observations FOR SELECT USING (true)';
+
+        EXECUTE 'DROP POLICY IF EXISTS "Allow public insert for weather_observations" ON public.weather_observations';
+        EXECUTE 'CREATE POLICY "Allow public insert for weather_observations" ON public.weather_observations FOR INSERT WITH CHECK (true)';
+    END IF;
+END
+$$;

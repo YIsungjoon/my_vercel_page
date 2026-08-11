@@ -2,6 +2,17 @@
 	import { farmStore } from '$lib/farmStore.svelte';
 	import FarmingCalendar from '$lib/components/FarmingCalendar.svelte';
 	import type { Task, TaskCategory, TaskPriority, IssueCategory } from '$lib/types';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	let serverHydrated = $state(false);
+
+	$effect(() => {
+		if (!serverHydrated && data.farms?.length) {
+			farmStore.hydrateFromServer(data.farms, data.tasks ?? []);
+			serverHydrated = true;
+		}
+	});
 
 	let viewMode = $state<'today' | 'weekly' | 'all'>('today');
 	let statusFilter = $state<string>('all');
@@ -71,43 +82,81 @@
 		followupDate = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
 	}
 
-	function handleSaveAction(e: SubmitEvent) {
+	async function handleSaveAction(e: SubmitEvent) {
 		e.preventDefault();
 		if (!activeTask) return;
 
-		farmStore.logTaskAction({
-			task_id: activeTask.id,
-			action: actionType,
-			note: actionNote,
-			photo_url: actionPhotoUrl,
-			issue_category: actionType === 'issue' ? issueCategory : undefined,
-			create_followup: actionType === 'issue' && createFollowup,
-			followup_title: followupTitle,
-			followup_date: followupDate
-		});
+		const response = await fetch(
+			'/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks/actions',
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					task_id: activeTask.id,
+					action: actionType,
+					note: actionNote,
+					photo_url: actionPhotoUrl,
+					issue_category: actionType === 'issue' ? issueCategory : undefined,
+					create_followup: actionType === 'issue' && createFollowup,
+					followup_title: followupTitle,
+					followup_date: followupDate
+				})
+			}
+		);
+
+		if (response.status === 401) {
+			window.location.assign('/auth?next=/tasks');
+			return;
+		}
+
+		const result = await response.json().catch(() => ({}));
+		if (!response.ok) {
+			alert(result.error || 'Unable to record task action.');
+			return;
+		}
+
+		if (result.task) farmStore.addPersistedTask(result.task);
+		if (result.followup) farmStore.addPersistedTask(result.followup);
+		if (result.log) farmStore.addPersistedLog(result.log);
 
 		activeTask = null;
 	}
-
-	function handleCreateTask(e: SubmitEvent) {
+	async function handleCreateTask(e: SubmitEvent) {
 		e.preventDefault();
 		if (!newTitle) return;
 
-		farmStore.addTask({
-			farm_id: farmStore.selectedFarmId,
-			title: newTitle,
-			description: newDesc,
-			scheduled_date: newDate,
-			category: newCategory,
-			priority: newPriority,
-			is_followup: false
+		const response = await fetch('/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				title: newTitle,
+				description: newDesc,
+				scheduled_date: newDate,
+				category: newCategory,
+				priority: newPriority,
+				is_followup: false
+			})
 		});
+
+		if (response.status === 401) {
+			window.location.assign('/auth?next=/tasks');
+			return;
+		}
+
+		const result = await response.json().catch(() => ({}));
+		if (!response.ok) {
+			alert(result.error || 'Task creation failed.');
+			return;
+		}
+
+		if (result.task) {
+			farmStore.addPersistedTask(result.task);
+		}
 
 		newTitle = '';
 		newDesc = '';
 		showNewTaskModal = false;
-	}
-</script>
+	}</script>
 
 <svelte:head>
 	<title>오늘 & 주간 작업 일정 | Dreaming Agri</title>
@@ -247,8 +296,8 @@
 
 <!-- Task Action / Issue Log Modal -->
 {#if activeTask}
-	<div class="modal-backdrop" onclick={() => (activeTask = null)}>
-		<div class="modal-card" onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (activeTask = null)}>
+		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3>
 					{actionType === 'completed' ? '✅ 작업 완료 등록' : actionType === 'issue' ? '🚨 문제 및 특이사항 등록' : '⏸ 작업 연기 등록'}
@@ -352,8 +401,8 @@
 
 <!-- New Task Creation Modal -->
 {#if showNewTaskModal}
-	<div class="modal-backdrop" onclick={() => (showNewTaskModal = false)}>
-		<div class="modal-card" onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (showNewTaskModal = false)}>
+		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h3>📋 새 작업 일정 등록</h3>
 				<button type="button" class="btn-close" onclick={() => (showNewTaskModal = false)}>&times;</button>

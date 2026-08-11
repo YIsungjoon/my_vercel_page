@@ -1,22 +1,27 @@
-import { createServerSupabaseClient } from '$lib/server/supabase';
+import { loadFarmWorkspace } from '$lib/server/farmData';
 
-export async function load() {
-	const supabase = createServerSupabaseClient();
+export async function load({ locals }) {
+	const supabase = locals.supabase;
+	const user = await locals.getUser();
 
 	if (!supabase) {
 		return {
 			farm: null,
 			weather: null,
+			farms: [],
+			tasks: [],
 			supabase: {
 				configured: false,
 				error: null
-			}
+			},
+			user: null
 		};
 	}
 
+	const workspace = await loadFarmWorkspace(supabase, Boolean(user));
 	const { data: farm, error: farmError } = await supabase
 		.from('farms')
-		.select('id, slug, name, region, latitude, longitude, timezone')
+		.select('id, slug, name, region, latitude, longitude, timezone, is_virtual')
 		.eq('slug', 'gimje-demo-farm')
 		.maybeSingle();
 
@@ -24,10 +29,13 @@ export async function load() {
 		return {
 			farm: null,
 			weather: null,
+			farms: workspace.farms,
+			tasks: workspace.tasks,
 			supabase: {
 				configured: true,
-				error: farmError?.message ?? '가상농장 데이터를 찾을 수 없습니다.'
-			}
+				error: farmError?.message ?? workspace.error ?? 'Demo farm was not found.'
+			},
+			user: user ? { id: user.id, email: user.email ?? null } : null
 		};
 	}
 
@@ -44,9 +52,12 @@ export async function load() {
 	return {
 		farm,
 		weather,
+		farms: workspace.farms,
+		tasks: workspace.tasks,
 		supabase: {
 			configured: true,
-			error: weatherError?.message ?? null
-		}
+			error: weatherError?.message ?? workspace.error ?? null
+		},
+		user: user ? { id: user.id, email: user.email ?? null } : null
 	};
 }

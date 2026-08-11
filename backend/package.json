@@ -9,6 +9,8 @@
 		"db:reset": "supabase db reset",
 		"db:new": "supabase migration new",
 		"db:push": "supabase db push",
+		"db:test": "supabase test db supabase/tests/database --local",
+		"db:lint": "supabase db lint",
 		"types": "supabase gen types typescript --local",
 		"weather:serve": "supabase functions serve record-weather",
 		"weather:deploy": "supabase functions deploy record-weather --no-verify-jwt"
