@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ params, url, locals }) => {
 	let query = supabase
 		.from('observation_streams')
 		.select(
-			'id, farm_id, source_id, work_area_id, field_code, stream_code, name, unit_code, max_latency_minutes, requires_calibration, is_active, created_by, created_at, updated_at'
+			'id, farm_id, source_id, work_area_id, field_code, stream_code, name, unit_code, max_latency_minutes, quality_policy_version, sequence_policy, clock_drift_tolerance_seconds, quality_policy_updated_by, requires_calibration, is_active, created_by, created_at, updated_at'
 		)
 		.eq('farm_id', farmId);
 

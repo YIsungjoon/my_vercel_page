@@ -438,10 +438,71 @@ export interface ObservationStream {
 	name: string;
 	unit_code?: string;
 	max_latency_minutes: number;
+	quality_policy_version: number;
+	sequence_policy: 'NONE' | 'MONOTONIC_INTEGER';
+	clock_drift_tolerance_seconds: number;
+	quality_policy_updated_by: string;
 	requires_calibration: boolean;
 	is_active: boolean;
 	created_by: string;
 	created_at: string;
+	updated_at: string;
+}
+
+export interface ObservationQualityFinding {
+	id: string;
+	finding_code: string;
+	severity: 'WARNING' | 'ERROR';
+	detail?: string;
+	detected_at: string;
+}
+
+export interface ObservationTransportQualityReceipt {
+	observation_id: string;
+	farm_id: string;
+	stream_id: string;
+	policy_version: number;
+	sequence_policy: 'NONE' | 'MONOTONIC_INTEGER';
+	source_sequence_value?: number | string;
+	previous_high_watermark?: number | string;
+	sequence_status:
+		| 'NOT_TRACKED'
+		| 'FIRST'
+		| 'CONTIGUOUS'
+		| 'GAP'
+		| 'OUT_OF_ORDER'
+		| 'DUPLICATE';
+	missing_sequence_count: number | string;
+	sequence_state_advanced: boolean;
+	clock_drift_seconds: number;
+	clock_drift_tolerance_seconds: number;
+	clock_status: 'WITHIN_TOLERANCE' | 'CLOCK_AHEAD';
+	evaluated_at: string;
+}
+
+export interface ObservationStreamQualityPolicyVersion {
+	id: string;
+	farm_id: string;
+	stream_id: string;
+	policy_version: number;
+	sequence_policy: 'NONE' | 'MONOTONIC_INTEGER';
+	clock_drift_tolerance_seconds: number;
+	reason_code: string;
+	note?: string;
+	changed_by: string;
+	changed_at: string;
+}
+
+export interface ObservationStreamSequenceState {
+	stream_id: string;
+	farm_id: string;
+	policy_version: number;
+	last_sequence_value?: number | string;
+	last_observation_id?: string;
+	last_observed_at?: string;
+	receipt_count: number | string;
+	anomaly_count: number | string;
+	version: number | string;
 	updated_at: string;
 }
 
@@ -463,6 +524,8 @@ export interface StreamObservation {
 	recorded_by?: string;
 	collector_agent_id?: string;
 	ingest_batch_id?: string;
+	observation_quality_findings?: ObservationQualityFinding[];
+	observation_transport_quality_receipts?: ObservationTransportQualityReceipt;
 	created_at: string;
 }
 
