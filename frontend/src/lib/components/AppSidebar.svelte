@@ -60,10 +60,6 @@
 <svelte:window onkeydown={(event) => event.key === 'Escape' && (mobileOpen = false)} />
 
 <header class="mobile-bar">
-	<a class="mobile-brand" href="/">
-		<span class="brand-mark" aria-hidden="true"><i></i></span>
-		<strong>Dreaming Agri</strong>
-	</a>
 	<button
 		type="button"
 		class="menu-button"
@@ -74,6 +70,10 @@
 	>
 		<span></span><span></span><span></span>
 	</button>
+	<a class="mobile-brand" href="/">
+		<span class="brand-mark" aria-hidden="true"><i></i></span>
+		<strong>Dreaming Agri</strong>
+	</a>
 </header>
 
 {#if mobileOpen}
@@ -93,13 +93,24 @@
 	aria-hidden={mobileViewport && !mobileOpen ? 'true' : undefined}
 	inert={mobileViewport && !mobileOpen}
 >
-	<a class="brand" href="/">
-		<span class="brand-mark" aria-hidden="true"><i></i></span>
-		<span>
-			<strong>Dreaming Agri</strong>
-			<small>Farm Operations MVP</small>
-		</span>
-	</a>
+	<div class="sidebar-top">
+		<a class="brand" href="/">
+			<span class="brand-mark" aria-hidden="true"><i></i></span>
+			<span>
+				<strong>Dreaming Agri</strong>
+				<small>Farm Operations MVP</small>
+			</span>
+		</a>
+		<button
+			type="button"
+			class="sidebar-close"
+			aria-label="메뉴 닫기"
+			title="메뉴 닫기"
+			onclick={() => (mobileOpen = false)}
+		>
+			&times;
+		</button>
+	</div>
 
 	<!-- Farm Switcher Dropdown -->
 	<div class="farm-context">
@@ -182,6 +193,17 @@
 		align-items: center;
 		gap: 12px;
 		text-decoration: none;
+	}
+
+	.sidebar-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.sidebar-close {
+		display: none;
 	}
 
 	.brand {
@@ -422,7 +444,8 @@
 			height: 66px;
 			padding: 0 18px;
 			align-items: center;
-			justify-content: space-between;
+			justify-content: flex-start;
+			gap: 12px;
 			border-bottom: 1px solid #dde5dc;
 			background: rgba(244, 247, 242, 0.94);
 			backdrop-filter: blur(14px);
@@ -456,6 +479,22 @@
 			height: 2px;
 			border-radius: 2px;
 			background: #245b38;
+		}
+
+		.sidebar-close {
+			display: grid;
+			width: 40px;
+			height: 40px;
+			padding: 0;
+			flex: 0 0 auto;
+			place-items: center;
+			border: 1px solid rgba(255, 255, 255, 0.16);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.08);
+			color: #f4f8f4;
+			font-size: 1.5rem;
+			line-height: 1;
+			cursor: pointer;
 		}
 
 		.backdrop {
