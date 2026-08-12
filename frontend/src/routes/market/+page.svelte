@@ -29,6 +29,7 @@
 		padding: 28px 36px;
 		max-width: 1400px;
 		margin: 0 auto;
+		min-width: 0;
 	}
 
 	.header-bar {
@@ -54,5 +55,24 @@
 		margin: 0;
 		font-size: 0.9rem;
 		color: #556c5e;
+	}
+
+	@media (max-width: 640px) {
+		.page-container {
+			padding: 28px 16px 48px;
+		}
+
+		.header-bar {
+			margin-bottom: 20px;
+		}
+
+		.header-bar h1 {
+			font-size: 1.45rem;
+			line-height: 1.35;
+		}
+
+		.header-bar p {
+			line-height: 1.55;
+		}
 	}
 </style>

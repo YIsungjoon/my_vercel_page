@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { farmStore } from '$lib/farmStore.svelte';
 	import FarmingCalendar from '$lib/components/FarmingCalendar.svelte';
 	import type { Task, TaskCategory, TaskPriority, IssueCategory } from '$lib/types';
@@ -37,11 +38,88 @@
 	let newDate = $state(new Date().toISOString().slice(0, 10));
 	let newCategory = $state<TaskCategory>('관수/시비');
 	let newPriority = $state<TaskPriority>('medium');
+	let actionDialog = $state<HTMLElement | null>(null);
+	let actionFirstInput = $state<HTMLTextAreaElement | null>(null);
+	let newTaskDialog = $state<HTMLElement | null>(null);
+	let newTaskFirstInput = $state<HTMLInputElement | null>(null);
+	let modalOpener: HTMLElement | null = null;
 
 	function openAddTaskForDate(dateStr: string) {
 		newDate = dateStr;
+		openNewTaskModal();
+	}
+
+	function rememberModalOpener() {
+		modalOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+	}
+
+	function openNewTaskModal() {
+		rememberModalOpener();
 		showNewTaskModal = true;
 	}
+
+	function restoreModalFocus() {
+		const opener = modalOpener;
+		modalOpener = null;
+		void tick().then(() => opener?.focus());
+	}
+
+	function closeActionModal() {
+		activeTask = null;
+		restoreModalFocus();
+	}
+
+	function closeNewTaskModal() {
+		showNewTaskModal = false;
+		restoreModalFocus();
+	}
+
+	function handleDialogKeydown(event: KeyboardEvent, dialog: HTMLElement | null, close: () => void) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			close();
+			return;
+		}
+
+		if (event.key !== 'Tab' || !dialog) return;
+
+		const focusable = Array.from(
+			dialog.querySelectorAll<HTMLElement>(
+				'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+			)
+		).filter((element) => !element.hidden && element.getClientRects().length > 0);
+
+		if (focusable.length === 0) {
+			event.preventDefault();
+			return;
+		}
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if (event.shiftKey && document.activeElement === first) {
+			event.preventDefault();
+			last.focus();
+		} else if (!event.shiftKey && document.activeElement === last) {
+			event.preventDefault();
+			first.focus();
+		}
+	}
+
+	$effect(() => {
+		const modalIsOpen = Boolean(activeTask) || showNewTaskModal;
+		if (!modalIsOpen) return;
+
+		const previousOverflow = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		void tick().then(() => {
+			if (activeTask) actionFirstInput?.focus();
+			else if (showNewTaskModal) newTaskFirstInput?.focus();
+		});
+
+		return () => {
+			document.body.style.overflow = previousOverflow;
+		};
+	});
 
 	// Sample Crop Issue Photos for quick selection
 	const samplePhotos = [
@@ -68,10 +146,26 @@
 			list = list.filter((t) => t.category === categoryFilter);
 		}
 
-		return list;
+		const statusRank = { pending: 0, issue: 1, skipped: 2, completed: 3 } as const;
+		const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+
+		return [...list].sort((a, b) => {
+			if (viewMode === 'today') {
+				const statusDifference = statusRank[a.status] - statusRank[b.status];
+				if (statusDifference !== 0) return statusDifference;
+			}
+			const dateDifference = a.scheduled_date.localeCompare(b.scheduled_date);
+			if (dateDifference !== 0) return dateDifference;
+			return priorityRank[a.priority] - priorityRank[b.priority];
+		});
 	});
 
+	const viewHeading = $derived(
+		viewMode === 'today' ? '오늘 실행 작업' : viewMode === 'weekly' ? '이번 주 작업' : '전체 작업 일정'
+	);
+
 	function openActionModal(task: Task, type: 'completed' | 'skipped' | 'issue') {
+		rememberModalOpener();
 		activeTask = task;
 		actionType = type;
 		actionNote = type === 'completed' ? '작업 정상 완료' : type === 'issue' ? '특이사항 발생 및 문제 기록' : '작업 일정 연기';
@@ -111,7 +205,7 @@
 
 		const result = await response.json().catch(() => ({}));
 		if (!response.ok) {
-			alert(result.error || 'Unable to record task action.');
+			alert(result.error || '작업 기록을 저장하지 못했습니다.');
 			return;
 		}
 
@@ -119,7 +213,7 @@
 		if (result.followup) farmStore.addPersistedTask(result.followup);
 		if (result.log) farmStore.addPersistedLog(result.log);
 
-		activeTask = null;
+		closeActionModal();
 	}
 	async function handleCreateTask(e: SubmitEvent) {
 		e.preventDefault();
@@ -145,7 +239,7 @@
 
 		const result = await response.json().catch(() => ({}));
 		if (!response.ok) {
-			alert(result.error || 'Task creation failed.');
+			alert(result.error || '작업 일정을 추가하지 못했습니다.');
 			return;
 		}
 
@@ -155,7 +249,7 @@
 
 		newTitle = '';
 		newDesc = '';
-		showNewTaskModal = false;
+		closeNewTaskModal();
 	}</script>
 
 <svelte:head>
@@ -169,50 +263,60 @@
 			<h1>농사 달력 & 농작업 일정</h1>
 			<p>전통 24절기 농업 지침, 주간·월간 농사 달력, 작업 수행/문제 기록 및 후속 조치를 통합 관리합니다.</p>
 		</div>
-		<button type="button" class="btn-primary" onclick={() => (showNewTaskModal = true)}>
+		<button type="button" class="btn-primary" onclick={openNewTaskModal}>
 			+ 새 작업 일정 등록
 		</button>
 	</header>
 
-	<!-- 24 Solar Terms Farming Calendar Component -->
-	<FarmingCalendar onOpenAddTask={openAddTaskForDate} />
-
 	<!-- Filter Controls & View Selector -->
 	<div class="control-panel">
 		<div class="view-tabs">
-			<button class:active={viewMode === 'today'} onclick={() => (viewMode = 'today')}>
+			<button aria-pressed={viewMode === 'today'} class:active={viewMode === 'today'} onclick={() => (viewMode = 'today')}>
 				오늘의 작업 ({farmStore.todayTasks.length})
 			</button>
-			<button class:active={viewMode === 'weekly'} onclick={() => (viewMode = 'weekly')}>
+			<button aria-pressed={viewMode === 'weekly'} class:active={viewMode === 'weekly'} onclick={() => (viewMode = 'weekly')}>
 				주간 작업 ({farmStore.weeklyTasks.length})
 			</button>
-			<button class:active={viewMode === 'all'} onclick={() => (viewMode = 'all')}>
+			<button aria-pressed={viewMode === 'all'} class:active={viewMode === 'all'} onclick={() => (viewMode = 'all')}>
 				전체 일정 ({farmStore.currentFarmTasks.length})
 			</button>
 		</div>
 
 		<div class="filter-group">
-			<select bind:value={statusFilter}>
+			<label class="filter-control" for="task-status-filter">
+				<span>상태</span>
+				<select id="task-status-filter" bind:value={statusFilter}>
 				<option value="all">모든 상태</option>
 				<option value="pending">대기 중</option>
 				<option value="completed">완료됨</option>
 				<option value="issue">문제 발생</option>
 				<option value="skipped">연기/미완료</option>
-			</select>
+				</select>
+			</label>
 
-			<select bind:value={categoryFilter}>
+			<label class="filter-control" for="task-category-filter">
+				<span>분류</span>
+				<select id="task-category-filter" bind:value={categoryFilter}>
 				<option value="all">모든 카테고리</option>
 				<option value="관수/시비">관수/시비</option>
 				<option value="환경관리">환경관리</option>
 				<option value="병해충방제">병해충방제</option>
 				<option value="수확/정리">수확/정리</option>
 				<option value="후속작업">후속작업</option>
-			</select>
+				</select>
+			</label>
 		</div>
 	</div>
 
 	<!-- Tasks List Grid -->
-	<section class="tasks-section">
+	<section class="tasks-section" aria-labelledby="task-list-heading">
+		<div class="section-heading">
+			<div>
+				<span class="section-kicker">실행 우선순위</span>
+				<h2 id="task-list-heading">{viewHeading}</h2>
+			</div>
+			<strong>{filteredTasks.length}건</strong>
+		</div>
 		{#if filteredTasks.length === 0}
 			<div class="empty-card">
 				<p>조건에 일치하는 작업 일정이 없습니다.</p>
@@ -292,17 +396,20 @@
 			</div>
 		{/if}
 	</section>
+
+	<!-- 24 Solar Terms Farming Calendar Component -->
+	<FarmingCalendar onOpenAddTask={openAddTaskForDate} />
 </main>
 
 <!-- Task Action / Issue Log Modal -->
 {#if activeTask}
-	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (activeTask = null)}>
-		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={closeActionModal}>
+		<div bind:this={actionDialog} class="modal-card" role="dialog" aria-modal="true" aria-labelledby="action-modal-title" tabindex="-1" onkeydown={(event) => handleDialogKeydown(event, actionDialog, closeActionModal)} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
-				<h3>
+				<h3 id="action-modal-title">
 					{actionType === 'completed' ? '✅ 작업 완료 등록' : actionType === 'issue' ? '🚨 문제 및 특이사항 등록' : '⏸ 작업 연기 등록'}
 				</h3>
-				<button type="button" class="btn-close" onclick={() => (activeTask = null)}>&times;</button>
+				<button type="button" class="btn-close" aria-label="작업 기록 창 닫기" title="닫기" onclick={closeActionModal}>&times;</button>
 			</div>
 
 			<form onsubmit={handleSaveAction} class="modal-form">
@@ -326,6 +433,7 @@
 				<div class="form-group">
 					<label for="action-note">수행 메모 & 현장 기록 *</label>
 					<textarea
+						bind:this={actionFirstInput}
 						id="action-note"
 						bind:value={actionNote}
 						rows="3"
@@ -391,7 +499,7 @@
 				{/if}
 
 				<div class="modal-actions">
-					<button type="button" class="btn-secondary" onclick={() => (activeTask = null)}>취소</button>
+					<button type="button" class="btn-secondary" onclick={closeActionModal}>취소</button>
 					<button type="submit" class="btn-primary">저장 및 등록</button>
 				</div>
 			</form>
@@ -401,16 +509,16 @@
 
 <!-- New Task Creation Modal -->
 {#if showNewTaskModal}
-	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={() => (showNewTaskModal = false)}>
-		<div class="modal-card" role="dialog" aria-modal="true" tabindex="-1" onkeydown={(event) => event.stopPropagation()} onclick={(e) => e.stopPropagation()}>
+	<div class="modal-backdrop" role="presentation" onkeydown={(event) => event.stopPropagation()} onclick={closeNewTaskModal}>
+		<div bind:this={newTaskDialog} class="modal-card" role="dialog" aria-modal="true" aria-labelledby="new-task-modal-title" tabindex="-1" onkeydown={(event) => handleDialogKeydown(event, newTaskDialog, closeNewTaskModal)} onclick={(e) => e.stopPropagation()}>
 			<div class="modal-header">
-				<h3>📋 새 작업 일정 등록</h3>
-				<button type="button" class="btn-close" onclick={() => (showNewTaskModal = false)}>&times;</button>
+				<h3 id="new-task-modal-title">📋 새 작업 일정 등록</h3>
+				<button type="button" class="btn-close" aria-label="새 작업 일정 창 닫기" title="닫기" onclick={closeNewTaskModal}>&times;</button>
 			</div>
 			<form onsubmit={handleCreateTask} class="modal-form">
 				<div class="form-group">
 					<label for="task-title">작업 제목 *</label>
-					<input id="task-title" type="text" bind:value={newTitle} placeholder="예: 3화방 곁순 제거 및 적엽" required />
+					<input bind:this={newTaskFirstInput} id="task-title" type="text" bind:value={newTitle} placeholder="예: 3화방 곁순 제거 및 적엽" required />
 				</div>
 
 				<div class="form-group">
@@ -446,7 +554,7 @@
 				</div>
 
 				<div class="modal-actions">
-					<button type="button" class="btn-secondary" onclick={() => (showNewTaskModal = false)}>취소</button>
+					<button type="button" class="btn-secondary" onclick={closeNewTaskModal}>취소</button>
 					<button type="submit" class="btn-primary">일정 추가</button>
 				</div>
 			</form>
@@ -514,6 +622,35 @@
 		border-radius: 16px;
 	}
 
+	.tasks-section {
+		margin-bottom: 28px;
+	}
+
+	.section-heading {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 16px;
+		margin: 0 0 14px;
+	}
+
+	.section-heading h2 {
+		margin: 2px 0 0;
+		font-size: 1.25rem;
+		color: #173d29;
+	}
+
+	.section-heading > strong {
+		color: #25663b;
+		font-size: 0.9rem;
+	}
+
+	.section-kicker {
+		color: #697c70;
+		font-size: 0.72rem;
+		font-weight: 800;
+	}
+
 	.view-tabs {
 		display: flex;
 		gap: 8px;
@@ -540,6 +677,17 @@
 		gap: 10px;
 	}
 
+	.filter-control {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.filter-control > span {
+		color: #607468;
+		font-size: 0.75rem;
+	}
+
 	.filter-group select {
 		padding: 8px 12px;
 		border: 1px solid #d2ded0;
@@ -551,6 +699,7 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 		gap: 20px;
+		align-items: start;
 	}
 
 	.task-card {
@@ -836,5 +985,104 @@
 		color: #3b5243;
 		font-weight: 600;
 		cursor: pointer;
+	}
+
+	@media (max-width: 640px) {
+		.page-container {
+			padding: 28px 16px 48px;
+		}
+
+		.header-bar {
+			align-items: stretch;
+			margin-bottom: 18px;
+		}
+
+		h1 {
+			font-size: 1.55rem;
+			line-height: 1.35;
+		}
+
+		.header-bar p {
+			line-height: 1.55;
+		}
+
+		.header-bar .btn-primary {
+			width: 100%;
+		}
+
+		.control-panel {
+			align-items: stretch;
+			padding: 12px;
+			border-radius: 8px;
+		}
+
+		.view-tabs,
+		.filter-group {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			width: 100%;
+		}
+
+		.view-tabs button {
+			padding: 9px 4px;
+			font-size: 0.78rem;
+		}
+
+		.filter-group {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.filter-control {
+			align-items: stretch;
+			flex-direction: column;
+		}
+
+		.filter-group select {
+			width: 100%;
+		}
+
+		.tasks-grid {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 14px;
+		}
+
+		.task-card {
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.task-card-header {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.task-actions {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.btn-skip {
+			grid-column: 1 / -1;
+		}
+
+		.btn-act {
+			min-height: 44px;
+		}
+
+		.modal-backdrop {
+			align-items: flex-end;
+			padding: 0;
+		}
+
+		.modal-card {
+			max-height: 92vh;
+			padding: 22px 18px;
+			border-radius: 8px 8px 0 0;
+		}
+
+		.form-row {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

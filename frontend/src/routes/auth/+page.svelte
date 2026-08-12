@@ -17,7 +17,7 @@
 
 		const client = getSupabaseBrowserClient();
 		if (!client) {
-			errorMessage = 'Supabase environment variables are not configured.';
+			errorMessage = '로그인 서비스가 설정되지 않았습니다. 관리자에게 문의해주세요.';
 			return;
 		}
 
@@ -29,12 +29,15 @@
 		isSubmitting = false;
 
 		if (result.error) {
-			errorMessage = result.error.message;
+			errorMessage =
+				mode === 'sign-in'
+					? '이메일 또는 비밀번호를 확인해주세요.'
+					: '계정을 만들지 못했습니다. 입력 정보를 확인해주세요.';
 			return;
 		}
 
 		if (mode === 'sign-up' && !result.data.session) {
-			successMessage = 'Check your email to confirm your account, then sign in.';
+			successMessage = '확인 메일을 보냈습니다. 이메일 인증을 완료한 뒤 로그인해주세요.';
 			mode = 'sign-in';
 			return;
 		}
@@ -45,22 +48,22 @@
 </script>
 
 <svelte:head>
-	<title>Account | Dreaming Agri</title>
+	<title>로그인 | Dreaming Agri</title>
 </svelte:head>
 
 <main class="auth-page">
 	<section class="auth-panel" aria-labelledby="auth-title">
 		<div class="auth-heading">
 			<span class="eyebrow">Dreaming Agri</span>
-			<h1 id="auth-title">{mode === 'sign-in' ? 'Sign in' : 'Create account'}</h1>
-			<p>Use an account to keep farm records private and sync them across sessions.</p>
+			<h1 id="auth-title">{mode === 'sign-in' ? '로그인' : '계정 만들기'}</h1>
+			<p>농장 기록을 안전하게 보관하고 작업 현황을 이어서 관리합니다.</p>
 		</div>
 
 		<form onsubmit={submit}>
-			<label for="auth-email">Email</label>
+			<label for="auth-email">이메일</label>
 			<input id="auth-email" type="email" bind:value={email} autocomplete="email" required />
 
-			<label for="auth-password">Password</label>
+			<label for="auth-password">비밀번호</label>
 			<input
 				id="auth-password"
 				type="password"
@@ -78,14 +81,14 @@
 			{/if}
 
 			<button type="submit" disabled={isSubmitting}>
-				{isSubmitting ? 'Working...' : mode === 'sign-in' ? 'Sign in' : 'Create account'}
+				{isSubmitting ? '처리 중...' : mode === 'sign-in' ? '로그인' : '계정 만들기'}
 			</button>
 		</form>
 
 		<button type="button" class="mode-toggle" onclick={() => (mode = mode === 'sign-in' ? 'sign-up' : 'sign-in')}>
-			{mode === 'sign-in' ? 'Need an account? Create one' : 'Already have an account? Sign in'}
+			{mode === 'sign-in' ? '계정이 없으신가요? 계정 만들기' : '이미 계정이 있으신가요? 로그인'}
 		</button>
-		<a class="back-link" href="/">Back to dashboard</a>
+		<a class="back-link" href="/">대시보드로 돌아가기</a>
 	</section>
 </main>
 
@@ -115,7 +118,7 @@
 		color: #39774a;
 		font-size: 0.75rem;
 		font-weight: 700;
-		letter-spacing: 0.08em;
+		letter-spacing: 0;
 		text-transform: uppercase;
 	}
 

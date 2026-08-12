@@ -86,17 +86,17 @@
 	<!-- Calendar Header Controls -->
 	<div class="calendar-top-bar">
 		<div class="month-title-group">
-			<button type="button" class="btn-nav" onclick={prevMonth}>&lt;</button>
+			<button type="button" class="btn-nav" aria-label="이전 달" title="이전 달" onclick={prevMonth}>‹</button>
 			<h2>{year}년 {month}월 전통 농사 달력</h2>
-			<button type="button" class="btn-nav" onclick={nextMonth}>&gt;</button>
+			<button type="button" class="btn-nav" aria-label="다음 달" title="다음 달" onclick={nextMonth}>›</button>
 			<button type="button" class="btn-today" onclick={goToday}>오늘 ({todayStr})</button>
 		</div>
 
 		<div class="mode-toggle-group">
-			<button class:active={calendarMode === 'month'} onclick={() => (calendarMode = 'month')}>
+			<button aria-pressed={calendarMode === 'month'} class:active={calendarMode === 'month'} onclick={() => (calendarMode = 'month')}>
 				월간 달력
 			</button>
-			<button class:active={calendarMode === 'week'} onclick={() => (calendarMode = 'week')}>
+			<button aria-pressed={calendarMode === 'week'} class:active={calendarMode === 'week'} onclick={() => (calendarMode = 'week')}>
 				주간 타임라인
 			</button>
 		</div>
@@ -145,7 +145,8 @@
 						<button
 							type="button"
 							class="btn-add-quick"
-							title="이 날짜에 작업 등록"
+							aria-label={`${day.dateStr}에 작업 등록`}
+							title={`${day.dateStr}에 작업 등록`}
 							onclick={() => onOpenAddTask?.(day.dateStr)}
 						>
 							+
@@ -231,12 +232,17 @@
 	}
 
 	.btn-nav {
-		padding: 6px 12px;
+		display: inline-grid;
+		width: 36px;
+		height: 36px;
+		padding: 0;
+		place-items: center;
 		border: 1px solid #d2ded0;
 		border-radius: 8px;
 		background: #f6faf6;
 		color: #173d29;
 		font-weight: 700;
+		font-size: 1.25rem;
 		cursor: pointer;
 	}
 
@@ -286,11 +292,12 @@
 
 	.terms-chips {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 		gap: 10px;
 	}
 
 	.term-chip {
+		min-width: 0;
 		padding: 10px 14px;
 		border-radius: 10px;
 		background: #ffffff;
@@ -398,6 +405,17 @@
 		display: inline-block;
 	}
 
+	.calendar-cell:focus-within .btn-add-quick {
+		display: inline-grid;
+	}
+
+	@media (pointer: coarse) {
+		.btn-add-quick {
+			display: inline-grid;
+			place-items: center;
+		}
+	}
+
 	.cell-tasks-list {
 		flex: 1;
 		display: flex;
@@ -464,12 +482,61 @@
 	.status-pill.status-pending { background: #fef3c7; color: #92400e; }
 
 	@media (max-width: 768px) {
+		.farming-calendar-wrapper {
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.calendar-top-bar,
+		.month-title-group {
+			align-items: stretch;
+		}
+
+		.month-title-group {
+			display: grid;
+			grid-template-columns: 36px minmax(0, 1fr) 36px;
+			width: 100%;
+		}
+
+		.month-title-group h2 {
+			align-self: center;
+			font-size: 1.05rem;
+			text-align: center;
+		}
+
+		.btn-today {
+			grid-column: 1 / -1;
+		}
+
+		.mode-toggle-group {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			width: 100%;
+		}
+
 		.calendar-grid {
 			font-size: 0.75rem;
 		}
 		.calendar-cell {
-			min-height: 70px;
+			height: 82px;
 			padding: 4px;
+		}
+
+		.solar-term-badge {
+			display: none;
+		}
+
+		.btn-add-quick {
+			display: inline-grid;
+			width: 24px;
+			height: 24px;
+			padding: 0;
+			place-items: center;
+		}
+
+		.mini-task-pill {
+			padding: 2px 3px;
+			font-size: 0.64rem;
 		}
 	}
 </style>

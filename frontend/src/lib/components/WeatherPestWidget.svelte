@@ -128,12 +128,16 @@
 <style>
 	.api-widget-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
 		gap: 20px;
 		margin-bottom: 24px;
+		min-width: 0;
 	}
 
 	.widget-card {
+		width: 100%;
+		min-width: 0;
+		max-width: 100%;
 		background: #ffffff;
 		border: 1px solid #dce5dc;
 		border-radius: 18px;
@@ -308,5 +312,25 @@
 		padding: 8px 10px;
 		border-radius: 8px;
 		border: 1px solid #bbf7d0;
+	}
+
+	@media (max-width: 640px) {
+		.widget-card {
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.header-right {
+			align-items: flex-start;
+		}
+
+		.metrics-row {
+			gap: 8px;
+			padding: 12px 8px;
+		}
+
+		.metric-item .value {
+			font-size: 1.15rem;
+		}
 	}
 </style>

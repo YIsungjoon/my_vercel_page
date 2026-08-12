@@ -37,6 +37,18 @@
 	];
 
 	let mobileOpen = $state(false);
+	let mobileViewport = $state(false);
+
+	$effect(() => {
+		if (!browser) return;
+
+		const media = window.matchMedia('(max-width: 960px)');
+		const updateViewport = () => (mobileViewport = media.matches);
+		updateViewport();
+		media.addEventListener('change', updateViewport);
+
+		return () => media.removeEventListener('change', updateViewport);
+	});
 
 	function isPathActive(href: string): boolean {
 		const pathname = page.url.pathname;
@@ -57,22 +69,30 @@
 		class="menu-button"
 		aria-label={mobileOpen ? '메뉴 닫기' : '메뉴 열기'}
 		aria-expanded={mobileOpen}
+		aria-controls="app-sidebar"
 		onclick={() => (mobileOpen = !mobileOpen)}
 	>
 		<span></span><span></span><span></span>
 	</button>
 </header>
 
-<button
-	type="button"
-	class:visible={mobileOpen}
-	class="backdrop"
-	aria-label="메뉴 닫기"
-	tabindex={mobileOpen ? 0 : -1}
-	onclick={() => (mobileOpen = false)}
-></button>
+{#if mobileOpen}
+	<button
+		type="button"
+		class="backdrop visible"
+		aria-hidden="true"
+		tabindex="-1"
+		onclick={() => (mobileOpen = false)}
+	></button>
+{/if}
 
-<aside id="app-sidebar" class:open={mobileOpen} aria-label="주요 탐색">
+<aside
+	id="app-sidebar"
+	class:open={mobileOpen}
+	aria-label="주요 탐색"
+	aria-hidden={mobileViewport && !mobileOpen ? 'true' : undefined}
+	inert={mobileViewport && !mobileOpen}
+>
 	<a class="brand" href="/">
 		<span class="brand-mark" aria-hidden="true"><i></i></span>
 		<span>
@@ -112,6 +132,7 @@
 					<a
 						href={item.href}
 						class:active={isPathActive(item.href)}
+						aria-current={isPathActive(item.href) ? 'page' : undefined}
 						onclick={() => (mobileOpen = false)}
 					>
 						<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -383,11 +404,14 @@
 		aside {
 			width: min(84vw, 320px);
 			transform: translateX(-105%);
-			transition: transform 220ms ease;
+			visibility: hidden;
+			transition: transform 220ms ease, visibility 0s linear 220ms;
 		}
 
 		aside.open {
 			transform: translateX(0);
+			visibility: visible;
+			transition-delay: 0s;
 		}
 
 		.mobile-bar {

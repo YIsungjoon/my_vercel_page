@@ -225,7 +225,8 @@
 				<!-- Cross Market 5-Major Market Comparison Table -->
 				<div class="cross-market-box">
 					<h4>📊 전국 5대 도매시장 실시간 경락가 비교</h4>
-					<table class="market-table">
+					<div class="market-table-scroll" role="region" aria-label="전국 5대 도매시장 경락가 비교표">
+						<table class="market-table">
 						<thead>
 							<tr>
 								<th>도매시장 명칭</th>
@@ -247,7 +248,8 @@
 								</tr>
 							{/each}
 						</tbody>
-					</table>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -256,6 +258,9 @@
 
 <style>
 	.market-widget-card {
+		width: 100%;
+		min-width: 0;
+		max-width: 100%;
 		margin-bottom: 24px;
 		background: #ffffff;
 		border: 1px solid #dce5dc;
@@ -312,12 +317,15 @@
 
 	.market-body-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
 		gap: 20px;
+		min-width: 0;
 	}
 
 	/* Price Overview */
 	.price-overview-box {
+		min-width: 0;
+		max-width: 100%;
 		background: #f8faf8;
 		border: 1px solid #e1ebe0;
 		border-radius: 14px;
@@ -414,6 +422,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	/* Revenue Simulator */
@@ -526,6 +536,8 @@
 
 	/* Cross Market Table */
 	.cross-market-box {
+		min-width: 0;
+		max-width: 100%;
 		background: #ffffff;
 		border: 1px solid #e1ebe0;
 		border-radius: 14px;
@@ -540,6 +552,7 @@
 
 	.market-table {
 		width: 100%;
+		min-width: 440px;
 		border-collapse: collapse;
 		font-size: 0.78rem;
 	}
@@ -569,5 +582,47 @@
 		border-radius: 4px;
 		font-weight: 800;
 		margin-left: 4px;
+	}
+
+	.market-table-scroll {
+		max-width: 100%;
+		overflow-x: auto;
+		border-radius: 8px;
+	}
+
+	@media (max-width: 640px) {
+		.market-widget-card {
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.price-overview-box,
+		.revenue-simulator-box,
+		.cross-market-box {
+			padding: 14px;
+		}
+
+		.price-sub-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.price-sub-grid .sub-item:last-child {
+			grid-column: 1 / -1;
+		}
+
+		.quick-btns {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+
+		.quick-btns button {
+			padding: 6px 2px;
+		}
+
+		.sim-row {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 2px;
+		}
 	}
 </style>

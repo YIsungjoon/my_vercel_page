@@ -12,14 +12,12 @@
 }
 
 html {
-	min-width: 320px;
 	background: #f4f7f2;
 	scroll-behavior: smooth;
 }
 
 body {
 	margin: 0;
-	min-width: 320px;
 	min-height: 100vh;
 }
 
