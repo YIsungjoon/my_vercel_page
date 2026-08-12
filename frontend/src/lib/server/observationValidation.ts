@@ -21,6 +21,54 @@ export const DERIVED_QUALITY_STATUSES = [
 	'UNCALIBRATED'
 ];
 
+export const COLLECTION_AGENT_KINDS = [
+	'WEATHER_COLLECTOR',
+	'SENSOR_GATEWAY',
+	'DATA_IMPORTER',
+	'SYSTEM_INTEGRATION'
+];
+export const COLLECTION_AGENT_STATUSES = ['ACTIVE', 'PAUSED', 'REVOKED'];
+export const COLLECTION_AGENT_CREDENTIAL_STATUSES = ['ACTIVE', 'RETIRED', 'REVOKED'];
+
+export const INGEST_BATCH_STATUSES = ['OPEN', 'COMPLETED', 'PARTIAL', 'FAILED'];
+export const OUTBOX_MESSAGE_STATUSES = [
+	'PENDING',
+	'CLAIMED',
+	'PUBLISHED',
+	'RETRY',
+	'DEAD_LETTER'
+];
+
+export function normalizedReasonCode(value: unknown, field = 'reason_code') {
+	const parsed = requiredText(value, field);
+	if (!/^[A-Z][A-Z0-9_]*$/.test(parsed)) {
+		throw new Error(field + ' must use uppercase letters, digits, and underscores.');
+	}
+
+	return parsed;
+}
+
+export function vaultSecretReference(value: unknown) {
+	const parsed = requiredText(value, 'secret_reference');
+	if (
+		parsed.length > 255 ||
+		!/^vault:\/\/[A-Za-z0-9][A-Za-z0-9_./:-]*$/.test(parsed)
+	) {
+		throw new Error('secret_reference must be a valid vault:// reference.');
+	}
+
+	return parsed;
+}
+
+export function credentialFingerprint(value: unknown) {
+	const parsed = requiredText(value, 'secret_fingerprint_sha256').toLowerCase();
+	if (!/^[0-9a-f]{64}$/.test(parsed)) {
+		throw new Error('secret_fingerprint_sha256 must be a SHA-256 fingerprint.');
+	}
+
+	return parsed;
+}
+
 export function requiredTimestamp(value: unknown, field: string) {
 	const parsed = requiredText(value, field);
 	if (Number.isNaN(Date.parse(parsed))) {

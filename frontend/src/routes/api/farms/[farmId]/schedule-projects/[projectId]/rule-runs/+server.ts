@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 	const { data, error } = await supabase
 		.from('activity_rule_runs')
 		.select(
-			'id, farm_id, project_id, run_kind, recurrence_rule_id, trigger_rule_id, source_rule_version, source_template_version, idempotency_key, window_start_date, window_end_date, status, outcome_code, started_at, finished_at, created_by, created_at, activity_trigger_evaluations(evaluated_at, event_type, match_mode, predicate_count, matched_count, insufficient_count), activity_proposals(id, proposal_key, activity_code, name, planned_start_at, planned_finish_at, status, version)'
+			'id, farm_id, project_id, run_kind, recurrence_rule_id, trigger_rule_id, source_rule_version, source_template_version, idempotency_key, window_start_date, window_end_date, status, outcome_code, started_at, finished_at, created_by, execution_worker_id, created_at, activity_trigger_evaluations(evaluated_at, event_type, match_mode, predicate_count, matched_count, insufficient_count), activity_proposals(id, proposal_key, activity_code, name, planned_start_at, planned_finish_at, status, version)'
 		)
 		.eq('farm_id', farmId)
 		.eq('project_id', projectId)

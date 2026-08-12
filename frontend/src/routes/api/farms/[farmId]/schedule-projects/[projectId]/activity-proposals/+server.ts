@@ -28,7 +28,7 @@ export const GET: RequestHandler = async ({ params, url, locals }) => {
 	let query = supabase
 		.from('activity_proposals')
 		.select(
-			'id, farm_id, project_id, rule_run_id, proposal_key, template_id, template_version, wbs_id, calendar_id, cultivation_cycle_id, operation_type_code, activity_code, name, description, activity_type, percent_complete_type, planned_start_at, planned_finish_at, planned_duration_minutes, status, version, created_by, updated_by, created_at, updated_at, activity_proposal_work_areas(work_area_id, is_primary), activity_proposal_decisions(id, decision, reason_code, note, decided_by, decided_at), activity_proposal_applications(id, activity_id, idempotency_key, applied_by, applied_at)'
+			'id, farm_id, project_id, rule_run_id, proposal_key, template_id, template_version, wbs_id, calendar_id, cultivation_cycle_id, operation_type_code, activity_code, name, description, activity_type, percent_complete_type, planned_start_at, planned_finish_at, planned_duration_minutes, status, version, created_by, updated_by, created_by_worker_id, updated_by_worker_id, created_at, updated_at, activity_proposal_work_areas(work_area_id, is_primary), activity_proposal_decisions(id, decision, reason_code, note, decided_by, decided_at), activity_proposal_applications(id, activity_id, idempotency_key, applied_by, applied_at)'
 		)
 		.eq('farm_id', farmId)
 		.eq('project_id', projectId);
