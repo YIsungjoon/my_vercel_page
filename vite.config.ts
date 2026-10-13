@@ -7,7 +7,7 @@ export default defineConfig({
 	define: { 'import.meta.env.VITE_DREAMING_AGRI_BASE_PATH': JSON.stringify('/dreaming-agri') },
 	resolve: { dedupe: ['svelte'] },
 	server: {
-		watch: { ignored: ['**/backend/**', '**/project/**/.svelte-kit/**', '**/project/**/.vercel/**'] }
+		watch: { ignored: ['**/.tmp/**', '**/backend/**', '**/project/**/.svelte-kit/**', '**/project/**/.vercel/**'] }
 	},
 	plugins: [
 		sveltekit({

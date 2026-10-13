@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const frontend = resolve(root, 'project/dreaming_agri/frontend');
+const practice = resolve(root, 'project/ai-practice');
 const source = resolve(frontend, 'src/routes');
 const target = resolve(root, 'src/routes/dreaming-agri');
 const manifest = resolve(root, '.svelte-kit/service-routes.json');
@@ -53,9 +54,9 @@ await mkdir(dirname(manifest), { recursive: true });
 await writeFile(manifest, JSON.stringify(generated));
 await writeFile(resolve(target, '+layout.ts'), 'export const prerender = false;\n');
 
-// Both apps use the root toolchain; a root-only npm ci is sufficient on Vercel.
+// All services use the root toolchain; a root-only npm ci is sufficient on Vercel.
 const cli = resolve(root, 'node_modules/@sveltejs/kit/svelte-kit.js');
-for (const cwd of [frontend, root]) {
+for (const cwd of [frontend, practice, root]) {
 	const result = spawnSync(process.execPath, [cli, 'sync'], { cwd, stdio: 'inherit' });
 	if (result.status !== 0) process.exit(result.status ?? 1);
 }
