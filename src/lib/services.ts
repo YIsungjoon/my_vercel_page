@@ -1,4 +1,3 @@
-import { dev } from '$app/environment';
 
 export interface Service {
 	id: string;
@@ -13,21 +12,6 @@ export interface Service {
 	icon?: 'sprout' | 'grid';
 }
 
-function serviceUrl(value: string | undefined): string | null {
-	if (!value?.trim()) return null;
-	try {
-		const url = new URL(value.trim());
-		if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) {
-			throw new Error('Expected a public HTTP(S) URL without credentials.');
-		}
-		return url.href;
-	} catch {
-		throw new Error('VITE_DREAMING_AGRI_URL must be a valid public HTTP(S) URL.');
-	}
-}
-
-const productionUrl = serviceUrl(import.meta.env.VITE_DREAMING_AGRI_URL);
-
 // Add one entry here for each independent application under project/<service-name>.
 export const services: Service[] = [
 	{
@@ -37,10 +21,22 @@ export const services: Service[] = [
 		category: '농업·스마트팜',
 		description: '생육 환경, 작업 일정, 도매 시세와 AI 도우미를 제공하는 농장 운영 관리 서비스.',
 		tags: ['농장 관리', '작업 일정', 'AI 도우미'],
-		href: productionUrl ?? (dev ? 'http://localhost:5174' : null),
+		href: '/dreaming-agri',
 		sourceUrl: 'https://github.com/YIsungjoon/my_vercel_page/tree/main/project/dreaming_agri',
-		local: dev && !productionUrl,
+		local: false,
 		icon: 'sprout'
+	},
+	{
+		id: 'ai-practice',
+		name: 'Practice Lab',
+		kicker: '문제 연습과 모의고사',
+		category: '학습·자격증',
+		description: 'AI 역량평가부터 자격증·공무원 시험까지, 과정별 문제은행·모의고사·오답 복습을 제공하는 학습 서비스.',
+		tags: ['문제은행', '모의고사', '오답노트'],
+		href: '/ai-practice',
+		sourceUrl: 'https://github.com/YIsungjoon/my_vercel_page/tree/main/project/ai-practice',
+		local: false,
+		icon: 'grid'
 	}
 ];
 

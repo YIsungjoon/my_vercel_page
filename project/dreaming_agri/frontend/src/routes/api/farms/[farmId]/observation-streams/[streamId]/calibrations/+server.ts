@@ -3,11 +3,11 @@ import {
 	isUuid,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	optionalIsoTimestamp,
 	requiredTimestamp
-} from '$lib/server/observationValidation';
+} from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

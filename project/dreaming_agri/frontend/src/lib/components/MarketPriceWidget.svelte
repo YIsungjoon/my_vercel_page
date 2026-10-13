@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
-	import { fetchCropMarketPrice, type MarketPriceInfo } from '$lib/services/marketApiService';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import { fetchCropMarketPrice, type MarketPriceInfo } from '$agri/services/marketApiService';
 
 	let market = $state<MarketPriceInfo | null>(null);
 	let loading = $state(true);

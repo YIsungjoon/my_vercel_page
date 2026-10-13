@@ -22,6 +22,7 @@
 	<meta name="description" content="Dreaming Agri를 비롯한 웹 서비스 목록과 바로가기." />
 </svelte:head>
 
+<div class="portal-app">
 <a class="skip-link" href="#main">본문으로 바로가기</a>
 
 <div class="workspace">
@@ -144,4 +145,6 @@
 			<footer class="footer">© {new Date().getFullYear()} YIsungjoon</footer>
 		</main>
 	</div>
+</div>
+
 </div>

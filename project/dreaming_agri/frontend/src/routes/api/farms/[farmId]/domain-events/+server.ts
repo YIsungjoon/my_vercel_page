@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText } from '$lib/server/apiValidation';
-import { boundedInteger } from '$lib/server/observationValidation';
+import { isUuid, optionalText } from '$agri/server/apiValidation';
+import { boundedInteger } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 const OBSERVATION_EVENT_TYPES = ['WEATHER_OBSERVATION', 'SENSOR_OBSERVATION'];

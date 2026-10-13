@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
-	import type { FarmAdminSummary, IssueCategory } from '$lib/types';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import type { FarmAdminSummary, IssueCategory } from '$agri/types';
 
 	let adminSummaries = $derived(farmStore.getAdminSummaries());
 

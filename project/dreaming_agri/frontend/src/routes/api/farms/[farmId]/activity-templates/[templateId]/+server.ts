@@ -4,13 +4,13 @@ import {
 	isUuid,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	ACTIVITY_TYPES,
 	PERCENT_TYPES,
 	expectedVersion,
 	isVersionConflict
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 const TEMPLATE_FIELDS =

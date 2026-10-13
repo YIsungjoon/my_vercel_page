@@ -6,14 +6,14 @@ import {
 	optionalUuid,
 	requiredText,
 	requiredUuid
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	CREATE_RULE_STATUSES,
 	FREQUENCIES,
 	dateValue,
 	timeValue,
 	weekdayValues
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

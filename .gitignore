@@ -2,6 +2,8 @@
 node_modules/
 **/node_modules/
 .svelte-kit/
+# Generated service route adapters; source lives under project/.
+/src/routes/dreaming-agri/
 .vercel/
 build/
 dist/

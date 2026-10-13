@@ -1,11 +1,12 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$agri/assets/favicon.svg';
 	import { page } from '$app/state';
-	import AppSidebar from '$lib/components/AppSidebar.svelte';
+	import AppSidebar from '$agri/components/AppSidebar.svelte';
 	import '../app.css';
+	import { appPath } from '$agri/paths';
 
 	let { children } = $props();
-	const isAuthRoute = $derived(page.url.pathname.startsWith('/auth'));
+	const isAuthRoute = $derived(page.url.pathname.startsWith(appPath('/auth')));
 </script>
 
 <svelte:head>
@@ -17,12 +18,13 @@
 	/>
 </svelte:head>
 
-{#if !isAuthRoute}
-	<AppSidebar />
-{/if}
-
-<div class="app-content" class:auth-content={isAuthRoute}>
-	{@render children()}
+<div class="agri-app">
+	{#if !isAuthRoute}
+		<AppSidebar />
+	{/if}
+	<div class="app-content" class:auth-content={isAuthRoute}>
+		{@render children()}
+	</div>
 </div>
 
 <style>

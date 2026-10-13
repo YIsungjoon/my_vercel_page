@@ -5,7 +5,7 @@ import {
 	optionalUuid,
 	requiredText,
 	requiredUuid
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	FREQUENCIES,
 	RULE_STATUSES,
@@ -14,7 +14,7 @@ import {
 	isVersionConflict,
 	timeValue,
 	weekdayValues
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 const RECURRENCE_FIELDS =

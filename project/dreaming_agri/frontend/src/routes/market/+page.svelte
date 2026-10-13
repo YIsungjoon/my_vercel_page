@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
-	import WeatherPestWidget from '$lib/components/WeatherPestWidget.svelte';
-	import MarketPriceWidget from '$lib/components/MarketPriceWidget.svelte';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import WeatherPestWidget from '$agri/components/WeatherPestWidget.svelte';
+	import MarketPriceWidget from '$agri/components/MarketPriceWidget.svelte';
 </script>
 
 <svelte:head>

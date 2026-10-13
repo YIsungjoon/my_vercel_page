@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
+	import { farmStore } from '$agri/farmStore.svelte';
 	import {
 		fetchAgriculturalWeather,
 		fetchPestWarnings,
 		type WeatherInfo,
 		type PestWarningInfo
-	} from '$lib/services/agriApiService';
+	} from '$agri/services/agriApiService';
 
 	let weather = $state<WeatherInfo | null>(null);
 	let pestWarnings = $state<PestWarningInfo[]>([]);

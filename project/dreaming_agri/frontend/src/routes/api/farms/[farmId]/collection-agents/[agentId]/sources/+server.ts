@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText, uuidArray } from '$lib/server/apiValidation';
-import { expectedVersion, isVersionConflict } from '$lib/server/activityRuleValidation';
-import { normalizedReasonCode } from '$lib/server/observationValidation';
+import { isUuid, optionalText, uuidArray } from '$agri/server/apiValidation';
+import { expectedVersion, isVersionConflict } from '$agri/server/activityRuleValidation';
+import { normalizedReasonCode } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {

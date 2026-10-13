@@ -1,0 +1,30 @@
+{
+  "name": "ai-practice",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22.18.0" },
+  "scripts": {
+    "dev": "vite dev --port 5175 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --port 4175 --strictPort",
+    "prepare": "svelte-kit sync",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test:db": "node --experimental-strip-types --test tests/database.test.ts"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-vercel": "^6.3.4",
+    "@sveltejs/kit": "^2.63.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "svelte": "^5.56.1",
+    "svelte-check": "^4.6.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "@electric-sql/pglite": "^0.3.14",
+    "@types/node": "^24.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.5"
+  }
+}

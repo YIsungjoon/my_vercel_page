@@ -4,8 +4,8 @@
 	"version": "0.1.0",
 	"scripts": {
 		"dev:frontend": "npm --prefix frontend run dev -- --port 5174 --strictPort",
-		"dev:backend": "npm --prefix backend run dev",
-		"stop:backend": "npm --prefix backend run stop",
+		"dev:backend": "npm --prefix ../../backend run dev",
+		"stop:backend": "npm --prefix ../../backend run stop",
 		"check": "npm --prefix frontend run check",
 		"build": "npm --prefix frontend run build"
 	}

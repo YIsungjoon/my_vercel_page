@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
-	import type { AIConsultation } from '$lib/types';
+ import { appPath } from '$agri/paths';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import type { AIConsultation } from '$agri/types';
 
 	let inputQuestion = $state('');
 	let isThinking = $state(false);
@@ -36,7 +37,7 @@
 		const farm = farmStore.currentFarm;
 
 		try {
-			const res = await fetch('/api/ai', {
+			const res = await fetch(appPath('/api/ai'), {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

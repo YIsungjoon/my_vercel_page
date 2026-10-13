@@ -3,8 +3,8 @@ import {
 	isUuid,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
-import { OBSERVATION_SOURCE_KINDS } from '$lib/server/observationValidation';
+} from '$agri/server/apiValidation';
+import { OBSERVATION_SOURCE_KINDS } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

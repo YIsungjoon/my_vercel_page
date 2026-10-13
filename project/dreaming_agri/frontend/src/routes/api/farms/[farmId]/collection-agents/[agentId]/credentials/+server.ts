@@ -1,12 +1,12 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText, optionalUuid } from '$lib/server/apiValidation';
-import { expectedVersion, isVersionConflict } from '$lib/server/activityRuleValidation';
+import { isUuid, optionalText, optionalUuid } from '$agri/server/apiValidation';
+import { expectedVersion, isVersionConflict } from '$agri/server/activityRuleValidation';
 import {
 	credentialFingerprint,
 	normalizedReasonCode,
 	optionalIsoTimestamp,
 	vaultSecretReference
-} from '$lib/server/observationValidation';
+} from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

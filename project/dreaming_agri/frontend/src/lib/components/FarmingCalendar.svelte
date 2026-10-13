@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { farmStore } from '$lib/farmStore.svelte';
-	import { SOLAR_TERMS, getSolarTermForDate, type SolarTermInfo } from '$lib/solarTerms';
-	import type { Task, TaskCategory } from '$lib/types';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import { SOLAR_TERMS, getSolarTermForDate, type SolarTermInfo } from '$agri/solarTerms';
+	import type { Task, TaskCategory } from '$agri/types';
 
 	let { onSelectDate, onOpenAddTask }: { onSelectDate?: (dateStr: string) => void; onOpenAddTask?: (dateStr: string) => void } = $props();
 

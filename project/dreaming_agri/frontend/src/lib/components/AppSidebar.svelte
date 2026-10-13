@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { appPath, serviceBase } from '$agri/paths';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
-	import { farmStore } from '$lib/farmStore.svelte';
+	import { farmStore } from '$agri/farmStore.svelte';
 
 	const navigation = [
 		{
@@ -52,8 +53,8 @@
 
 	function isPathActive(href: string): boolean {
 		const pathname = page.url.pathname;
-		if (href === '/') return pathname === '/';
-		return pathname.startsWith(href);
+		if (href === '/') return pathname === appPath('/');
+		return pathname === appPath(href) || pathname.startsWith(appPath(href) + '/');
 	}
 </script>
 
@@ -70,10 +71,11 @@
 	>
 		<span></span><span></span><span></span>
 	</button>
-	<a class="mobile-brand" href="/">
+	<a class="mobile-brand" href={appPath('/')}>
 		<span class="brand-mark" aria-hidden="true"><i></i></span>
 		<strong>Dreaming Agri</strong>
 	</a>
+{#if serviceBase}<a class="mobile-portal" href="/">전체 서비스</a>{/if}
 </header>
 
 {#if mobileOpen}
@@ -93,8 +95,9 @@
 	aria-hidden={mobileViewport && !mobileOpen ? 'true' : undefined}
 	inert={mobileViewport && !mobileOpen}
 >
+	{#if serviceBase}<a class="portal-link" href="/">← 전체 서비스</a>{/if}
 	<div class="sidebar-top">
-		<a class="brand" href="/">
+		<a class="brand" href={appPath('/')}>
 			<span class="brand-mark" aria-hidden="true"><i></i></span>
 			<span>
 				<strong>Dreaming Agri</strong>
@@ -141,7 +144,7 @@
 			{#each navigation as item}
 				<li>
 					<a
-						href={item.href}
+						href={appPath(item.href)}
 						class:active={isPathActive(item.href)}
 						aria-current={isPathActive(item.href) ? 'page' : undefined}
 						onclick={() => (mobileOpen = false)}
@@ -167,7 +170,9 @@
 </aside>
 
 <style>
-	:global(:root) {
+ .portal-link { display: flex; align-items: center; min-height: 44px; margin-bottom: 12px; color: #c4d8c9; text-decoration: none; font-size: 13px; }
+ .mobile-portal { display: flex; align-items: center; min-height: 44px; margin-left: auto; color: #285139; text-decoration: none; font-size: 12px; white-space: nowrap; }
+	:global(.agri-app) {
 		--sidebar-width: 272px;
 	}
 
@@ -420,6 +425,11 @@
 	.mobile-bar,
 	.backdrop {
 		display: none;
+	}
+
+	@media (max-width: 400px) {
+		.mobile-bar { padding: 0 12px; gap: 8px; }
+		.mobile-brand { min-width: 0; gap: 8px; font-size: 14px; }
 	}
 
 	@media (max-width: 960px) {

@@ -5,7 +5,7 @@ import {
 	optionalText,
 	requiredText,
 	requiredUuid
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {

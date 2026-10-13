@@ -2,7 +2,7 @@ import {
 	integerOrDefault,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 
 export const OBSERVATION_SOURCE_KINDS = [
 	'WEATHER_API',

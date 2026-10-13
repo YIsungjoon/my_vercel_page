@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getLatestFarmWeather } from '$lib/server/weather';
+import { getLatestFarmWeather } from '$agri/server/weather';
 
 // Map Korean regions to precise latitude and longitude
 const REGION_COORDINATES: Record<string, { lat: number; lon: number; name: string }> = {

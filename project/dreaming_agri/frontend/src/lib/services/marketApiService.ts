@@ -1,3 +1,4 @@
+import { appPath } from '$agri/paths';
 export interface PriceTrendItem {
 	date: string;
 	price: number; // KRW
@@ -31,7 +32,7 @@ export interface RevenueSimulation {
  */
 export async function fetchCropMarketPrice(crop: string = '토마토'): Promise<MarketPriceInfo> {
 	try {
-		const res = await fetch(`/api/market?crop=${encodeURIComponent(crop)}`);
+		const res = await fetch(appPath(`/api/market?crop=${encodeURIComponent(crop)}`));
 		if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 		const data = await res.json();
 		return data.market;

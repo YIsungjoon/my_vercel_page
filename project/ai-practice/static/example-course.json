@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "courses": [{"id":"sql-practice","title":"SQL 기초 연습","category":"자격증","description":"새로운 자격증 과정을 추가하는 예시입니다. 실제 자격시험 기출문제가 아닙니다.","exams":[{"id":"sql-mini","title":"SQL 미니 모의고사","section":"basics","count":2,"minutes":3,"description":"선택형과 단답형으로 기본 개념을 점검합니다."}]}],
+  "subjects": [{"id":"sql-query","courseId":"sql-practice","label":"SQL 기본 문법"}],
+  "topics": [{"id":"sql-aggregate","subjectId":"sql-query","label":"집계와 NULL","icon":"chart"}],
+  "cases": [],
+  "questions": [
+    {"id":"SQL01","courseId":"sql-practice","subjectId":"sql-query","topic":"sql-aggregate","title":"NULL과 COUNT","level":"기본","section":"basics","kind":"choice","prompt":"값이 10, NULL, 30인 3행 테이블에서 COUNT(값)의 결과는?","choices":["0","1","2","3"],"answers":["2"],"explanation":"COUNT(컬럼)은 NULL이 아닌 값만 셉니다. 10과 30, 두 행이므로 결과는 2입니다.","takeaway":"COUNT(*)와 COUNT(컬럼)의 차이를 구분합니다."},
+    {"id":"SQL02","courseId":"sql-practice","subjectId":"sql-query","topic":"sql-aggregate","title":"전체 행 수","level":"기본","section":"basics","kind":"short","prompt":"3행 테이블에서 COUNT(*)의 결과를 숫자만 입력하세요.","answers":["3"],"explanation":"COUNT(*)는 컬럼의 NULL 여부와 관계없이 모든 행을 세므로 3입니다.","takeaway":"COUNT(*)는 전체 행 수를 구합니다."}
+  ]
+}

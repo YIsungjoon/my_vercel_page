@@ -4,11 +4,11 @@ import {
 	isUuid,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	ACTIVITY_TYPES,
 	PERCENT_TYPES
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

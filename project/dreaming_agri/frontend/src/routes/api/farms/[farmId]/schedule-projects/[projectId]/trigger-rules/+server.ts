@@ -8,13 +8,13 @@ import {
 	requiredText,
 	requiredUuid,
 	uuidArray
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	CREATE_RULE_STATUSES,
 	EVENT_TYPES,
 	MATCH_MODES,
 	predicateValues
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

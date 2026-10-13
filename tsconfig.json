@@ -1,6 +1,7 @@
 {
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
+		"rootDirs": [".", ".svelte-kit/types", "project/dreaming_agri/frontend", "project/dreaming_agri/frontend/.svelte-kit/types"],
 		"rewriteRelativeImportExtensions": true,
 		"allowJs": true,
 		"checkJs": true,

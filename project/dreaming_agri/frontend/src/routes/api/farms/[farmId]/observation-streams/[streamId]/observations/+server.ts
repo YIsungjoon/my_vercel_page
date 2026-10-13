@@ -3,7 +3,7 @@ import {
 	isUuid,
 	optionalText,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	boundedInteger,
 	DERIVED_QUALITY_STATUSES,
@@ -11,7 +11,7 @@ import {
 	optionalIsoTimestamp,
 	requiredTimestamp,
 	SOURCE_QUALITY_STATUSES
-} from '$lib/server/observationValidation';
+} from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url, locals }) => {

@@ -1,10 +1,10 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText, requiredText } from '$lib/server/apiValidation';
-import { expectedVersion, isVersionConflict } from '$lib/server/activityRuleValidation';
+import { isUuid, optionalText, requiredText } from '$agri/server/apiValidation';
+import { expectedVersion, isVersionConflict } from '$agri/server/activityRuleValidation';
 import {
 	COLLECTION_AGENT_STATUSES,
 	normalizedReasonCode
-} from '$lib/server/observationValidation';
+} from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 const AGENT_FIELDS =

@@ -1,10 +1,10 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, requiredText } from '$lib/server/apiValidation';
+import { isUuid, requiredText } from '$agri/server/apiValidation';
 import {
 	expectedVersion,
 	isVersionConflict
-} from '$lib/server/activityRuleValidation';
-import { requiredTimestamp } from '$lib/server/observationValidation';
+} from '$agri/server/activityRuleValidation';
+import { requiredTimestamp } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText } from '$lib/server/apiValidation';
-import { boundedInteger, OUTBOX_MESSAGE_STATUSES } from '$lib/server/observationValidation';
+import { isUuid, optionalText } from '$agri/server/apiValidation';
+import { boundedInteger, OUTBOX_MESSAGE_STATUSES } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url, locals }) => {

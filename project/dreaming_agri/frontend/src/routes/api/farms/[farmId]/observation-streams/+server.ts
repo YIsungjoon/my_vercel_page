@@ -4,8 +4,8 @@ import {
 	optionalUuid,
 	requiredText,
 	requiredUuid
-} from '$lib/server/apiValidation';
-import { boundedInteger } from '$lib/server/observationValidation';
+} from '$agri/server/apiValidation';
+import { boundedInteger } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, url, locals }) => {

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, requiredText, uuidArray } from '$lib/server/apiValidation';
-import { COLLECTION_AGENT_KINDS } from '$lib/server/observationValidation';
+import { isUuid, requiredText, uuidArray } from '$agri/server/apiValidation';
+import { COLLECTION_AGENT_KINDS } from '$agri/server/observationValidation';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {

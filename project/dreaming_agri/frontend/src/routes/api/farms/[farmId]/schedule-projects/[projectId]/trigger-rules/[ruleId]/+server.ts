@@ -7,7 +7,7 @@ import {
 	requiredText,
 	requiredUuid,
 	uuidArray
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import {
 	EVENT_TYPES,
 	MATCH_MODES,
@@ -15,7 +15,7 @@ import {
 	expectedVersion,
 	isVersionConflict,
 	predicateValues
-} from '$lib/server/activityRuleValidation';
+} from '$agri/server/activityRuleValidation';
 import type { RequestHandler } from './$types';
 
 const TRIGGER_FIELDS =

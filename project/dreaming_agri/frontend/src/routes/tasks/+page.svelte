@@ -1,9 +1,11 @@
 <script lang="ts">
+ import { appPath, loginPath } from '$agri/paths';
 	import { tick } from 'svelte';
-	import { farmStore } from '$lib/farmStore.svelte';
-	import FarmingCalendar from '$lib/components/FarmingCalendar.svelte';
-	import type { Task, TaskCategory, TaskPriority, IssueCategory } from '$lib/types';
-	import type { PageData } from './$types';
+	import { farmStore } from '$agri/farmStore.svelte';
+	import FarmingCalendar from '$agri/components/FarmingCalendar.svelte';
+	import type { Task, TaskCategory, TaskPriority, IssueCategory } from '$agri/types';
+	import type { load } from './+page.server';
+	type PageData = Awaited<ReturnType<typeof load>>;
 
 	let { data }: { data: PageData } = $props();
 	let serverHydrated = $state(false);
@@ -181,7 +183,7 @@
 		if (!activeTask) return;
 
 		const response = await fetch(
-			'/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks/actions',
+			appPath('/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks/actions'),
 			{
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -199,7 +201,7 @@
 		);
 
 		if (response.status === 401) {
-			window.location.assign('/auth?next=/tasks');
+			window.location.assign(loginPath('/tasks'));
 			return;
 		}
 
@@ -219,7 +221,7 @@
 		e.preventDefault();
 		if (!newTitle) return;
 
-		const response = await fetch('/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks', {
+		const response = await fetch(appPath('/api/farms/' + encodeURIComponent(farmStore.selectedFarmId) + '/tasks'), {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -233,7 +235,7 @@
 		});
 
 		if (response.status === 401) {
-			window.location.assign('/auth?next=/tasks');
+			window.location.assign(loginPath('/tasks'));
 			return;
 		}
 

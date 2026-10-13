@@ -1,5 +1,5 @@
 {
-	"name": "@dreaming-agri/backend",
+	"name": "@my-vercel-page/backend",
 	"private": true,
 	"version": "0.1.0",
 	"scripts": {
@@ -12,6 +12,7 @@
 		"db:test": "supabase test db supabase/tests/database --local",
 		"db:lint": "supabase db lint",
 		"types": "supabase gen types typescript --local",
+		"functions:serve": "supabase functions serve",
 		"weather:serve": "supabase functions serve record-weather",
 		"weather:deploy": "supabase functions deploy record-weather --no-verify-jwt"
 	},

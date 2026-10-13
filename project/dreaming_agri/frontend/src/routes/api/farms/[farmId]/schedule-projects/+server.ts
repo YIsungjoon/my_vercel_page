@@ -6,7 +6,7 @@ import {
 	optionalTimestamp,
 	optionalUuid,
 	requiredText
-} from '$lib/server/apiValidation';
+} from '$agri/server/apiValidation';
 import type { RequestHandler } from './$types';
 
 const PROJECT_FIELDS =

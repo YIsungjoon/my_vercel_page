@@ -1,3 +1,4 @@
+import { appPath } from '$agri/paths';
 export interface WeatherInfo {
 	region: string;
 	temperature: number; // °C
@@ -25,7 +26,7 @@ export interface PestWarningInfo {
  */
 export async function fetchAgriculturalWeather(region: string = '전북특별자치도 김제시'): Promise<WeatherInfo> {
 	try {
-		const res = await fetch(`/api/weather?region=${encodeURIComponent(region)}`);
+		const res = await fetch(appPath(`/api/weather?region=${encodeURIComponent(region)}`));
 		if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 		const data = await res.json();
 		return data.weather;
@@ -40,7 +41,7 @@ export async function fetchAgriculturalWeather(region: string = '전북특별자
  */
 export async function fetchPestWarnings(crop: string = '토마토'): Promise<PestWarningInfo[]> {
 	try {
-		const res = await fetch(`/api/pest?crop=${encodeURIComponent(crop)}`);
+		const res = await fetch(appPath(`/api/pest?crop=${encodeURIComponent(crop)}`));
 		if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 		const data = await res.json();
 		return data.warnings;

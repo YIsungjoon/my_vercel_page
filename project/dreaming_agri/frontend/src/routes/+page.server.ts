@@ -1,6 +1,6 @@
-import { loadFarmWorkspace } from '$lib/server/farmData';
+import { loadFarmWorkspace } from '$agri/server/farmData';
 
-export async function load({ locals }) {
+export async function load({ locals }: { locals: App.Locals }) {
 	const supabase = locals.supabase;
 	const user = await locals.getUser();
 

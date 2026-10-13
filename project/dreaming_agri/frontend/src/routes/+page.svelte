@@ -1,9 +1,11 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { farmStore } from '$lib/farmStore.svelte';
-	import WeatherPestWidget from '$lib/components/WeatherPestWidget.svelte';
-	import { fetchAgriculturalWeather, type WeatherInfo } from '$lib/services/agriApiService';
-	import type { GrowthStage } from '$lib/types';
+ import { appPath, loginPath } from '$agri/paths';
+	import type { load } from './+page.server';
+	type PageData = Awaited<ReturnType<typeof load>>;
+	import { farmStore } from '$agri/farmStore.svelte';
+	import WeatherPestWidget from '$agri/components/WeatherPestWidget.svelte';
+	import { fetchAgriculturalWeather, type WeatherInfo } from '$agri/services/agriApiService';
+	import type { GrowthStage } from '$agri/types';
 
 	let { data }: { data: PageData } = $props();
 
@@ -55,7 +57,7 @@
 			return;
 		}
 
-		const response = await fetch('/api/farms', {
+		const response = await fetch(appPath('/api/farms'), {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -70,7 +72,7 @@
 		});
 
 		if (response.status === 401) {
-			window.location.assign('/auth?next=/');
+			window.location.assign(loginPath('/'));
 			return;
 		}
 
@@ -184,7 +186,7 @@
 				<span>💰 <strong>{farmStore.currentFarm.crop} 도매가:</strong> 최근 상승세 (전국 평균 34,500원)</span>
 			</div>
 		</div>
-		<a href="/market" class="btn-goto-market">
+		<a href={appPath('/market')} class="btn-goto-market">
 			도매시세 & 상세 기상 분석 보러가기 &rarr;
 		</a>
 	</div>
@@ -194,7 +196,7 @@
 		<section class="card">
 			<div class="card-header">
 				<h3>📅 오늘의 작업 요약</h3>
-				<a href="/tasks" class="link-more">전체 일정 보기 &rarr;</a>
+				<a href={appPath('/tasks')} class="link-more">전체 일정 보기 &rarr;</a>
 			</div>
 			{#if farmStore.todayTasks.length === 0}
 				<p class="empty-text">오늘 예정된 작업이 없습니다.</p>
@@ -717,7 +719,7 @@
 
 	.farms-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
 		gap: 16px;
 	}
 

@@ -1,7 +1,8 @@
 <script lang="ts">
+ import { appPath, serviceBase } from '$agri/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { getSupabaseBrowserClient } from '$lib/supabaseClient';
+	import { getSupabaseBrowserClient } from '$agri/supabaseClient';
 
 	let mode = $state<'sign-in' | 'sign-up'>('sign-in');
 	let email = $state('');
@@ -43,7 +44,7 @@
 		}
 
 		const next = page.url.searchParams.get('next') || '/';
-		await goto(next);
+		await goto(appPath(next));
 	}
 </script>
 
@@ -88,7 +89,8 @@
 		<button type="button" class="mode-toggle" onclick={() => (mode = mode === 'sign-in' ? 'sign-up' : 'sign-in')}>
 			{mode === 'sign-in' ? '계정이 없으신가요? 계정 만들기' : '이미 계정이 있으신가요? 로그인'}
 		</button>
-		<a class="back-link" href="/">대시보드로 돌아가기</a>
+		{#if serviceBase}<a class="back-link" href="/">전체 서비스로 돌아가기</a>{/if}
+		<a class="back-link" href={appPath('/')}>대시보드로 돌아가기</a>
 	</section>
 </main>
 

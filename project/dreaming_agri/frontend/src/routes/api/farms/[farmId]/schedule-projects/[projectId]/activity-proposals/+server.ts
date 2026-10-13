@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { isUuid, optionalText } from '$lib/server/apiValidation';
+import { isUuid, optionalText } from '$agri/server/apiValidation';
 import type { RequestHandler } from './$types';
 
 const PROPOSAL_STATUSES = ['PROPOSED', 'APPROVED', 'REJECTED', 'APPLIED'];
