@@ -1,12 +1,33 @@
 {
-	"name": "dreaming-agri",
+	"name": "my-vercel-page",
 	"private": true,
 	"version": "0.1.0",
+	"type": "module",
+	"engines": {
+		"node": ">=22.12.0"
+	},
 	"scripts": {
-		"dev:frontend": "npm --prefix frontend run dev",
-		"dev:backend": "npm --prefix backend run dev",
-		"stop:backend": "npm --prefix backend run stop",
-		"check": "npm --prefix frontend run check",
-		"build": "npm --prefix frontend run build"
+		"dev": "vite dev --port 5173 --strictPort",
+		"dev:frontend": "npm run dev:agri",
+		"dev:agri": "npm --prefix project/dreaming_agri/frontend run dev -- --port 5174 --strictPort",
+		"dev:backend": "npm --prefix project/dreaming_agri/backend run dev",
+		"stop:backend": "npm --prefix project/dreaming_agri/backend run stop",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:agri": "npm --prefix project/dreaming_agri/frontend run check",
+		"check:all": "npm run check && npm run check:agri",
+		"build:agri": "npm --prefix project/dreaming_agri/frontend run build",
+		"install:agri": "npm --prefix project/dreaming_agri/frontend ci && npm --prefix project/dreaming_agri/backend ci"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-vercel": "^6.3.4",
+		"@sveltejs/kit": "^2.63.0",
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"svelte": "^5.56.1",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.0.16"
 	}
 }
